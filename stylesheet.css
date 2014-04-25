@@ -1,0 +1,73 @@
+#game {
+  width: 600px;
+}
+
+#gameBoard {
+  height: 400px;
+  width: 400px;
+  background: lightBlue;
+  float: left;
+}
+
+#gameInfo {
+  height: 400px;
+  width: 150px;
+  background: lightBlue;
+  float: left;
+  margin-left: 20px;
+  font-family: Helvetica;
+  text-align: center;
+}
+
+.ball {
+  position: absolute;
+  height: 40px;
+  width: 40px;
+  background: black;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.hide {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+
+.end {
+  position: absolute;
+  height: 40px;
+  width: 40px;
+  background: white;
+  border-radius: 50%;
+}
+
+/* triangles */
+
+.triangle {
+  position: absolute;
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  z-index: 2;
+}
+
+.topLeft {
+  border-width: 40px 40px 0 0;
+  border-color: red transparent transparent   transparent;
+}
+
+.topRight {
+  border-width: 0 40px 40px 0;
+  border-color: transparent red transparent transparent;
+}
+
+.bottomRight {
+  border-width: 0 0 40px 40px;
+  border-color: transparent transparent red transparent;
+}
+
+.bottomLeft {
+  border-width: 40px 0 0 40px;
+  border-color: transparent transparent transparent red;
+}
