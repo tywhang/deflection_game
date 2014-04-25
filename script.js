@@ -9,6 +9,7 @@ var adjY = 0;
 var winX = game1[0][0];
 var winY = game1[0][1];
 var cont = true;
+var launch = false;
 
 
 $(document).ready(function() {
@@ -17,7 +18,8 @@ $(document).ready(function() {
 });
 
 $(document).on('keydown', function(event) {
-  if(event.which == 32) {
+  if(event.which == 32 && !launch) {
+    launch = true;
     $('#gameBoard').prepend('<div class="ball"></div>');
     moveBall();
   }
@@ -87,78 +89,41 @@ function loadTriangles() {
 
 
 $(document).on('click', '.triangle', function() {
-  if($(this).hasClass('topLeft')) {
-    $(this).removeClass('topLeft').addClass('topRight');
-  } else if($(this).hasClass('topRight')) {
-    $(this).removeClass('topRight').addClass('bottomRight');
-  } else if($(this).hasClass('bottomRight')) {
-    $(this).removeClass('bottomRight').addClass('bottomLeft');
-  } else {
-    $(this).removeClass('bottomLeft').addClass('topLeft');
+  if (!launch) {
+    if($(this).hasClass('topLeft')) {
+      $(this).removeClass('topLeft').addClass('topRight');
+    } else if($(this).hasClass('topRight')) {
+      $(this).removeClass('topRight').addClass('bottomRight');
+    } else if($(this).hasClass('bottomRight')) {
+      $(this).removeClass('bottomRight').addClass('bottomLeft');
+    } else {
+      $(this).removeClass('bottomLeft').addClass('topLeft');
+    }
   }
 });
 
+triArray = [['topLeft', 0], ['topRight', 1], ['bottomRight', 2], ['bottomLeft', 3]];
+dirHash = {'right': 0, 'down': 1, 'left': 2, 'up': 3}
+cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
+        [['down', 40], ['up', 0], ['right', 0], ['left', -40]],   //topRight
+        [['up', 40], ['left', 40], ['right', 0], ['down', 0]],   //bottomRight
+        [['left', 0], ['right', 40], ['up', -40], ['down', 0]]];   //bottomLeft
+
 function changeDirection(i) {
-  if ($('.tri' + i).hasClass('topLeft')) {
-    if (direction == 'right'){
-      direction = 'left';
-    } else if (direction == 'down'){
-      direction = 'up';
-    } else if (direction == 'left'){
-      move(direction, -40);
-      direction = 'down';
-    } else {
-      move(direction, -40);
-      direction = 'right';
-    }
-  } else if ($('.tri' + i).hasClass('topRight')) {
-    if (direction == 'right'){
-      move(direction, 40);
-      direction = 'down';
-    } else if (direction == 'down'){
-      direction = 'up';
-    } else if (direction == 'left'){
-      direction = 'right';
-    } else {
-      move(direction, -40);
-      direction = 'left';
-    }
-  } else if ($('.tri' + i).hasClass('bottomRight')) {
-    if (direction == 'right'){
-      move(direction, 40);
-      direction = 'up';
-    } else if (direction == 'down'){
-      move(direction, 40);
-      direction = 'left';
-    } else if (direction == 'left'){
-      direction = 'right';
-    } else {
-      direction = 'down';
-    }
-  } else if ($('.tri' + i).hasClass('bottomLeft')) {
-    if (direction == 'right'){
-      direction = 'up';
-    } else if (direction == 'down'){
-      move(direction, 40);
-      direction = 'right';
-    } else if (direction == 'left'){
-      move(direction, -40);
-      direction = 'up';
-    } else {
-      direction = 'down';
+  for (var j = 0; j < triArray.length; j++) {
+    if ($('.tri' + i).hasClass(triArray[j][0])) {
+      move(direction, cTri[j][dirHash[direction]][1]);
+      direction = cTri[j][dirHash[direction]][0];
     }
   }
+
 }
 
 
 /* Things to add for tomorrow:
     Make the controls lock when ball is in play.
-    Change the criteria that Triangle's X and Y positions are compared to depending on Balls direction. Like if moving down, increase BallX by 10. At least in the comparison equation.
-    Create a win() sequence.
     Make a grid for the game.
-    Clean up the code. DRY.
 */
-
 
 
 
