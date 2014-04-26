@@ -12,6 +12,15 @@ var cont = true;
 var launch = false;
 
 
+
+var triArray = [['topLeft', 0], ['topRight', 1], ['bottomRight', 2], ['bottomLeft', 3]];
+var dirHash = {'right': 0, 'down': 1, 'left': 2, 'up': 3}
+var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
+        [['down', 40], ['up', 0], ['right', 0], ['left', -40]],   //topRight
+        [['up', 40], ['left', 40], ['right', 0], ['down', 0]],   //bottomRight
+        [['left', 0], ['right', 40], ['up', -40], ['down', 0]]];   //bottomLeft
+
+
 $(document).ready(function() {
   loadTriangles();
   $('.score').append(gameNumber);
@@ -20,55 +29,79 @@ $(document).ready(function() {
 $(document).on('keydown', function(event) {
   if(event.which == 32 && !launch) {
     launch = true;
-    $('#gameBoard').prepend('<div class="ball"></div>');
-    moveBall();
+    var ball = new Ball();
+    ball.drawBall();
   }
 });
 
-function moveBall() {
-  touch();
-  if (cont) {
-    if (direction == 'right') {
-      move('right', 40);
-    } else if(direction == 'down') {
-      move('down', 40);
-    } else if(direction == 'left') {
-      move('left', -40);
-    } else {
-      move('down', -40);
+function Ball() {
+  this.drawBall = function() {
+    $('#gameBoard').prepend('<div class="ball"></div>');
+    this.moveBall();
+  },
+
+  this.moveBall = function() {
+    this.touch();
+    if (cont) {
+      if (direction == 'right') {
+        this.move('right', 40);
+      } else if(direction == 'down') {
+        this.move('down', 40);
+      } else if(direction == 'left') {
+        this.move('left', -40);
+      } else {
+        this.move('down', -40);
+      }
+      this.moveBall();
     }
-    moveBall();
-  }
-}
+  },
 
-function move(direction, units) {
-  if (direction == 'right' || direction == 'left') {
-    ballX += units;
-    adjX = ballX + units;
-    adjY = ballY;
-    $('.ball').animate({marginLeft: '+=' + units + 'px'}, 150);
-  } else {
-    ballY += units;
-    adjX = ballX;
-    adjY = ballY + units;
-    $('.ball').animate({marginTop: '+=' + units + 'px'}, 150);
-  }
-}
+  this.touch = function() {
+    if (ballX == winX && ballY == winY) {
+      winSequence();
+    } else if (ballX > 360 || ballX < 0 || ballY > 360 || ballX < 0) {
+      loseSequence();
+    } else {
+      for(var i = 1; i < game1.length; i++) {
+        if (adjX == game1[i][1] && adjY == game1[i][2]) {
+          this.changeDirection(i);
+        }
+      }
+    }
+  },
 
-function touch() {
-  if (ballX == winX && ballY == winY) {
-    winSequence();
-  } else {
-    for(var i = 1; i < game1.length; i++) {
-      if (adjX == game1[i][1] && adjY == game1[i][2]) {
-        changeDirection(i);
+  this.move = function(direction, units) {
+    if (direction == 'right' || direction == 'left') {
+      ballX += units;
+      adjX = ballX + units;
+      adjY = ballY;
+      $('.ball').animate({marginLeft: '+=' + units + 'px'}, 150);
+    } else {
+      ballY += units;
+      adjX = ballX;
+      adjY = ballY + units;
+      $('.ball').animate({marginTop: '+=' + units + 'px'}, 150);
+    }
+  },
+
+  this.changeDirection = function(i) {
+    for (var j = 0; j < triArray.length; j++) {
+      if ($('.tri' + i).hasClass(triArray[j][0])) {
+        this.move(direction, cTri[j][dirHash[direction]][1]);
+        direction = cTri[j][dirHash[direction]][0];
       }
     }
   }
 }
 
+
 function winSequence() {
   $('.win').removeClass('hide');
+  cont = false;
+}
+
+function loseSequence() {
+  $('.lose').removeClass('hide');
   cont = false;
 }
 
@@ -102,28 +135,6 @@ $(document).on('click', '.triangle', function() {
   }
 });
 
-triArray = [['topLeft', 0], ['topRight', 1], ['bottomRight', 2], ['bottomLeft', 3]];
-dirHash = {'right': 0, 'down': 1, 'left': 2, 'up': 3}
-cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
-        [['down', 40], ['up', 0], ['right', 0], ['left', -40]],   //topRight
-        [['up', 40], ['left', 40], ['right', 0], ['down', 0]],   //bottomRight
-        [['left', 0], ['right', 40], ['up', -40], ['down', 0]]];   //bottomLeft
-
-function changeDirection(i) {
-  for (var j = 0; j < triArray.length; j++) {
-    if ($('.tri' + i).hasClass(triArray[j][0])) {
-      move(direction, cTri[j][dirHash[direction]][1]);
-      direction = cTri[j][dirHash[direction]][0];
-    }
-  }
-
-}
-
-
-/* Things to add for tomorrow:
-    Make the controls lock when ball is in play.
-    Make a grid for the game.
-*/
 
 
 
