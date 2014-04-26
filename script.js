@@ -29,7 +29,7 @@ $(document).ready(function() {
 $(document).on('keydown', function(event) {
   if(event.which == 78) {
     game = new Game();
-    game.loadTriangles();
+    game.loadLevel();
   } else if(event.which == 32 && !launch) {
     launch = true;
     ball = new Ball();
@@ -98,15 +98,22 @@ function Ball() {
 }
 
 function Game() {
-  this.loadTriangles = function() {
+  this.loadLevel = function() {
+    // Adds triangles
     for (var i = 1; i < game1.length; i++) {
       var tri = new Triangle();
       tri.add(game1[i][0], game1[i][1], game1[i][2]);
     }
+    
+    // Adds End spot
+    $('#gameBoard').prepend('<div class="end"></div>');
+    $('.end').css('left', winX + 'px').css('top', winY + 'px');
+    
   },
 
   this.winSequence = function() {
     $('.win').removeClass('hide');
+    $('.end').css('background', 'red');
     cont = false;
   },
 
