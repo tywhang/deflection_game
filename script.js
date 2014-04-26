@@ -10,7 +10,8 @@ var winX = game1[0][0];
 var winY = game1[0][1];
 var cont = true;
 var launch = false;
-
+var game;
+var ball;
 
 
 var triArray = [['topLeft', 0], ['topRight', 1], ['bottomRight', 2], ['bottomLeft', 3]];
@@ -22,14 +23,16 @@ var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
 
 
 $(document).ready(function() {
-  loadTriangles();
   $('.score').append(gameNumber);
 });
 
 $(document).on('keydown', function(event) {
-  if(event.which == 32 && !launch) {
+  if(event.which == 78) {
+    game = new Game();
+    game.loadTriangles();
+  } else if(event.which == 32 && !launch) {
     launch = true;
-    var ball = new Ball();
+    ball = new Ball();
     ball.drawBall();
   }
 });
@@ -58,9 +61,9 @@ function Ball() {
 
   this.touch = function() {
     if (ballX == winX && ballY == winY) {
-      winSequence();
+      game.winSequence();
     } else if (ballX > 360 || ballX < 0 || ballY > 360 || ballX < 0) {
-      loseSequence();
+      game.loseSequence();
     } else {
       for(var i = 1; i < game1.length; i++) {
         if (adjX == game1[i][1] && adjY == game1[i][2]) {
@@ -75,12 +78,12 @@ function Ball() {
       ballX += units;
       adjX = ballX + units;
       adjY = ballY;
-      $('.ball').animate({marginLeft: '+=' + units + 'px'}, 150);
+      $('.ball').animate({left: '+=' + units + 'px'}, 150);
     } else {
       ballY += units;
       adjX = ballX;
       adjY = ballY + units;
-      $('.ball').animate({marginTop: '+=' + units + 'px'}, 150);
+      $('.ball').animate({top: '+=' + units + 'px'}, 150);
     }
   },
 
@@ -94,32 +97,33 @@ function Ball() {
   }
 }
 
+function Game() {
+  this.loadTriangles = function() {
+    for (var i = 1; i < game1.length; i++) {
+      var tri = new Triangle();
+      tri.add(game1[i][0], game1[i][1], game1[i][2]);
+    }
+  },
 
-function winSequence() {
-  $('.win').removeClass('hide');
-  cont = false;
-}
+  this.winSequence = function() {
+    $('.win').removeClass('hide');
+    cont = false;
+  },
 
-function loseSequence() {
-  $('.lose').removeClass('hide');
-  cont = false;
-}
-
-function addTriangle(orientation, xPosition, yPosition) {
-  $('#gameBoard').append('<div class="tri' + triCount + '"></div>');
-  $('.tri' + triCount).addClass(orientation).addClass('triangle');
-  $('.tri' + triCount).css('marginLeft', xPosition + 'px').css('marginTop', yPosition + 'px');
-  triCount++;
-}
-
-function loadTriangles() {
-  for (var i = 1; i < game1.length; i++) {
-    addTriangle(game1[i][0], game1[i][1], game1[i][2]);
+  this.loseSequence = function() {
+    $('.lose').removeClass('hide');
+    cont = false;
   }
-  $('#gameBoard').append('<div class="end"></div>');
-  $('.end').css({marginLeft: game1[0][0]}).css({marginTop: game1[0][1]});
 }
 
+function Triangle() {
+  this.add = function(orientation, xPosition, yPosition) {
+    $('#gameBoard').append('<div class="tri' + triCount + '"></div>');
+    $('.tri' + triCount).addClass(orientation).addClass('triangle');
+    $('.tri' + triCount).css('left', xPosition + 'px').css('top', yPosition + 'px');
+    triCount++;
+  }
+}
 
 $(document).on('click', '.triangle', function() {
   if (!launch) {

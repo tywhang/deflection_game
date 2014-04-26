@@ -1,8 +1,11 @@
 #game {
   width: 600px;
+  margin: 0 auto;
+  margin-top: 30px;
 }
 
 #gameBoard {
+  position: relative;
   height: 400px;
   width: 400px;
   background: lightBlue;
@@ -35,7 +38,6 @@
 }
 
 .end {
-  position: absolute;
   height: 40px;
   width: 40px;
   background: white;
