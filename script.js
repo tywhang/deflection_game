@@ -81,7 +81,7 @@ function Ball() {
       console.log('winSequence');
       cont = false;
       $('.ball').animate({height: '+= 0px'}, function() {
-        $('#game').fadeTo('slow', 0.3);
+        $('#gameBoard').children(":not('.nextGameButton')").fadeTo('slow', 0.3);
         $('.ball').css({margin: '5px', height: '30px', width: '30px'}); 
         $('.win').removeClass('hide');
         $('.end').css('background', 'red');
