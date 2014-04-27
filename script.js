@@ -20,6 +20,8 @@ var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
 
 $(document).ready(function() {
   $('.score').append(gameNumber);
+  $('#gameBoard').append('<button type="button" class="button nextGameButton">Next Round</button>');
+  $('.nextGameButton').addClass("hide");
 });
 
 $(document).on('keydown', function(event) {
@@ -69,14 +71,19 @@ function Ball() {
   },
 
   this.touch = function() {
+    // Win Sequence
     if (this.ballX == winX && this.ballY == winY) {
       cont = false;
       $('.ball').animate({height: '+= 0px'}, function() {
+        $('#game').fadeTo('slow', 0.3);
         $('.ball').css({margin: '5px', height: '30px', width: '30px'}); 
         $('.win').removeClass('hide');
         $('.end').css('background', 'red');
+        $('.nextGameButton').removeClass('hide').addClass('center');
         console.log(cont);
       });
+
+    // Lose Sequence
     } else if (this.ballX > 360 || this.ballX < 0 || this.ballY > 360 || this.ballY < 0) {
       cont = false;
       $('.ball').animate({height: '+= 0px'}, function() {
