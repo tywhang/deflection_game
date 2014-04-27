@@ -41,6 +41,7 @@ function Ball() {
   this.drawBall = function() {
     $('#gameBoard').prepend('<div class="ball"></div>');
     this.moveBall();
+
   },
 
   this.moveBall = function() {
@@ -61,9 +62,17 @@ function Ball() {
 
   this.touch = function() {
     if (ballX == winX && ballY == winY) {
-      game.winSequence();
-    } else if (ballX > 360 || ballX < 0 || ballY > 360 || ballX < 0) {
-      game.loseSequence();
+      cont = false;
+      $('.ball').animate({height: '+= 0px'}, function() {
+        $('.win').removeClass('hide');
+        $('.end').css('background', 'red');
+        console.log(cont);
+      });
+    } else if (ballX > 360 || ballX < 0 || ballY > 360 || ballY < 0) {
+      cont = false;
+      $('.ball').animate({height: '+= 0px'}, function() {
+        $('.lose').removeClass('hide');
+      });
     } else {
       for(var i = 1; i < game1.length; i++) {
         if (adjX == game1[i][1] && adjY == game1[i][2]) {
@@ -78,12 +87,12 @@ function Ball() {
       ballX += units;
       adjX = ballX + units;
       adjY = ballY;
-      $('.ball').animate({left: '+=' + units + 'px'}, 150);
+      $('.ball').animate({left: '+=' + units + 'px'}, 100);
     } else {
       ballY += units;
       adjX = ballX;
       adjY = ballY + units;
-      $('.ball').animate({top: '+=' + units + 'px'}, 150);
+      $('.ball').animate({top: '+=' + units + 'px'}, 100);
     }
   },
 
@@ -110,17 +119,6 @@ function Game() {
     $('.end').css('left', winX + 'px').css('top', winY + 'px');
     
   },
-
-  this.winSequence = function() {
-    $('.win').removeClass('hide');
-    $('.end').css('background', 'red');
-    cont = false;
-  },
-
-  this.loseSequence = function() {
-    $('.lose').removeClass('hide');
-    cont = false;
-  }
 }
 
 function Triangle() {
