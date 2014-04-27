@@ -9,12 +9,17 @@
   <body>
     <div id="game">
       <div id="gameBoard">
+        <button type="button" class="button nextGameButton">Next Round</button>
       </div>
       <div id="gameInfo">
         <h3>Deflection Game</h3>
         <br />
         <p>Level</p>
         <p class="score"></p>
+        <br />
+        <button type="button" onclick="launchBall()" class="button launch hide">Launch the ball</button>
+        <button type="button" onclick="start()" class="start button">Start Game</button>
+        <br />
         <br />
         <p class="win hide">You win!</p>
         <p class="lose hide">You lose...</p>
