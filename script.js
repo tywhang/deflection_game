@@ -1,14 +1,12 @@
-var triCount = 1;
 var gameNumber = 1;
 var ballSizeRatio = 40;
-var game1 = [[9, 2, 0, 0, 'right'],['bottomRight', 5, 5], ['topLeft', 0, 2], ['bottomRight', 0, 5], ['topRight', 5, 0]];
-var game2 = [[9, 2, 1, 9, 'up'], ['topLeft', 2, 0], ['topRight', 4, 0], ['bottomLeft', 4, 2]]
-var winX = game1[0][0] * ballSizeRatio;
-var winY = game1[0][1] * ballSizeRatio;
+var gameLevel;
+var gameLevels = [[[9, 2, 0, 0, 'right'],['bottomRight', 5, 5], ['topLeft', 0, 2], ['bottomRight', 0, 5], ['topRight', 5, 0]],
+                  [[9, 2, 2, 9, 'up'], ['topLeft', 2, 0], ['topRight', 4, 0], ['bottomLeft', 4, 2]]];
+var winX;
+var winY;
 var cont = true;
 var launch = false;
-var game;
-var ball;
 
 var triArray = [['topLeft', 0], ['topRight', 1], ['bottomRight', 2], ['bottomLeft', 3]];
 var dirHash = {'right': 0, 'down': 1, 'left': 2, 'up': 3}
@@ -19,8 +17,7 @@ var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
 
 
 $(document).ready(function() {
-  $('.score').append(gameNumber);
-  $('#gameBoard').append('<button type="button" class="button nextGameButton">Next Round</button>');
+  $('#gameBoard').append('<button type="button" class="button nextGameButton" onclick="game.nextRound()">Next Round</button>');
   $('.nextGameButton').addClass("hide");
 });
 
@@ -28,8 +25,11 @@ $(document).on('keydown', function(event) {
 });
 
 function start() {
+  $('.end').css('background', 'yellow');
+  $('.score').html(gameNumber);
   $('.start').addClass('hide');
   $('.launch').removeClass('hide');
+  $('#game').fadeTo('slow', 1);
   game = new Game();
   game.loadLevel();
   ball = new Ball();
@@ -38,24 +38,28 @@ function start() {
 
 function launchBall() {
   $('.launch').addClass('hide');
-  $('.arrow').addClass('hide');
+  $('.arrow').fadeOut();
   launch = true;
-  ball.moveBall(); 
+  cont = true;
+  ball.moveBall();
 }
 
 function Ball() {
-  this.direction = 'right';
-  this.ballX = 0;
-  this.ballY = 0;
-  this.adjX = 0;
-  this.adjY = 0;
+  this.direction = gameLevels[gameNumber - 1][0][4];
+  this.ballX = gameLevels[gameNumber -1][0][2] * ballSizeRatio;
+  this.ballY = gameLevels[gameNumber -1][0][3] * ballSizeRatio;
+  this.adjX;
+  this.adjY;
 
   this.drawBall = function() {
-    $('#gameBoard').prepend('<div class="arrow arrow-' + game1[0][4] + '"></div><div class="ball"></div>');
+    $('#gameBoard').prepend('<div class="arrow arrow-' + gameLevels[gameNumber - 1][0][4] + '"></div><div class="ball"></div>');
+    $('.arrow').css({left: gameLevels[gameNumber - 1][0][2] * ballSizeRatio + 'px', top: gameLevels[gameNumber - 1][0][3] * ballSizeRatio + 'px'});
+    $('.ball').css({left: gameLevels[gameNumber - 1][0][2] * ballSizeRatio + 'px', top: gameLevels[gameNumber - 1][0][3] * ballSizeRatio + 'px'});
   },
 
   this.moveBall = function() {
     this.touch();
+    console.log(cont);
     if (cont) {
       if (this.direction == 'right') {
         this.move('right', 40);
@@ -64,7 +68,8 @@ function Ball() {
       } else if(this.direction == 'left') {
         this.move('left', -40);
       } else {
-        this.move('down', -40);
+        console.log('work');
+        this.move('up', -40);
       }
       this.moveBall();
     }
@@ -73,6 +78,7 @@ function Ball() {
   this.touch = function() {
     // Win Sequence
     if (this.ballX == winX && this.ballY == winY) {
+      console.log('winSequence');
       cont = false;
       $('.ball').animate({height: '+= 0px'}, function() {
         $('#game').fadeTo('slow', 0.3);
@@ -80,7 +86,6 @@ function Ball() {
         $('.win').removeClass('hide');
         $('.end').css('background', 'red');
         $('.nextGameButton').removeClass('hide').addClass('center');
-        console.log(cont);
       });
 
     // Lose Sequence
@@ -90,8 +95,8 @@ function Ball() {
         $('.lose').removeClass('hide');
       });
     } else {
-      for(var i = 1; i < game1.length; i++) {
-        if (this.adjX == game1[i][1]*ballSizeRatio && this.adjY == game1[i][2]*ballSizeRatio) {
+      for(var i = 1; i < gameLevels[gameNumber - 1].length; i++) {
+        if (this.adjX == gameLevels[gameNumber - 1][i][1]*ballSizeRatio && this.adjY == gameLevels[gameNumber - 1][i][2]*ballSizeRatio) {
           this.changeDirection(i);
         }
       }
@@ -99,6 +104,7 @@ function Ball() {
   },
 
   this.move = function(direction, units) {
+    console.log(direction);
     if (direction == 'right' || direction == 'left') {
       this.ballX += units;
       this.adjX = this.ballX + units;
@@ -123,21 +129,35 @@ function Ball() {
 }
 
 function Game() {
+  winX = gameLevels[gameNumber - 1][0][0] * ballSizeRatio;
+  winY = gameLevels[gameNumber - 1][0][1] * ballSizeRatio;
+
   this.loadLevel = function() {
     // Adds triangles
-    for (var i = 1; i < game1.length; i++) {
+    for (var i = 1; i < gameLevels[gameNumber - 1].length; i++) {
       var tri = new Triangle();
-      tri.add(game1[i][0], (game1[i][1] * ballSizeRatio), (game1[i][2]) * ballSizeRatio);
+      tri.add(gameLevels[gameNumber - 1][i][0], (gameLevels[gameNumber - 1][i][1] * ballSizeRatio), (gameLevels[gameNumber - 1][i][2]) * ballSizeRatio, i);
     }
     
     // Adds End spot
     $('#gameBoard').prepend('<div class="end"></div>');
     $('.end').css('left', winX + 'px').css('top', winY + 'px');
   }
+
+  this.nextRound = function() {
+    $('.nextGameButton').addClass('hide').removeClass('center');
+    $('.win').addClass('hide');
+    $('.triangle').remove();
+    $('.ball').remove();
+    $('.arrow').remove();
+    triCount = 0; 
+    gameNumber++;
+    start();
+  }
 }
 
 function Triangle() {
-  this.add = function(orientation, xPosition, yPosition) {
+  this.add = function(orientation, xPosition, yPosition, triCount) {
     $('#gameBoard').append('<div class="tri' + triCount + '"></div>');
     $('.tri' + triCount).addClass(orientation).addClass('triangle');
     $('.tri' + triCount).css('left', xPosition + 'px').css('top', yPosition + 'px');
