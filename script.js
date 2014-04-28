@@ -1,12 +1,17 @@
 var gameNumber = 1;
 var ballSizeRatio = 40;
-var gameLevel;
-var gameLevels = [[[9, 2, 0, 0, 'right'],['bottomRight', 5, 5], ['topLeft', 0, 2], ['bottomRight', 0, 5], ['topRight', 5, 0]],
-                  [[9, 2, 2, 9, 'up'], ['topLeft', 2, 0], ['topRight', 4, 0], ['bottomLeft', 4, 2]]];
+var gameLevels = [[[[[9, 2], [4, 7]], [[0, 0, 'right'], [1, 9, 'right']]],
+                      ['bottomRight', 5, 5], ['topLeft', 0, 2], ['bottomRight', 0, 5], ['topRight', 5, 0], ['bottomRight', 9, 9]],
+                  [[[[9, 2]], [[2, 9, 'up']]], 
+                      ['topLeft', 2, 0], ['topRight', 4, 0], ['bottomLeft', 4, 2]]
+
+                  ];
 var winX;
 var winY;
 var cont = true;
 var launch = false;
+var ball = [];
+
 
 var triArray = [['topLeft', 0], ['topRight', 1], ['bottomRight', 2], ['bottomLeft', 3]];
 var dirHash = {'right': 0, 'down': 1, 'left': 2, 'up': 3}
@@ -14,6 +19,10 @@ var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
         [['down', 40], ['up', 0], ['right', 0], ['left', -40]],   //topRight
         [['up', 40], ['left', 40], ['right', 0], ['down', 0]],   //bottomRight
         [['left', 0], ['right', 40], ['up', -40], ['down', 0]]];   //bottomLeft
+
+
+
+
 
 
 $(document).ready(function() {
@@ -32,8 +41,11 @@ function start() {
   $('#game').fadeTo('slow', 1);
   game = new Game();
   game.loadLevel();
-  ball = new Ball();
-  ball.drawBall();
+  var ballDirectory = gameLevels[gameNumber - 1][0][1];
+  for (var i = 0; i < ballDirectory.length; i++) {
+    ball[i] = new Ball(ballDirectory[i][0] * ballSizeRatio, ballDirectory[i][1] * ballSizeRatio, ballDirectory[i][2], i);
+    ball[i].drawBall();
+  }
 }
 
 function launchBall() {
@@ -41,20 +53,24 @@ function launchBall() {
   $('.arrow').fadeOut();
   launch = true;
   cont = true;
-  ball.moveBall();
+  //for (var i = 0; i < ball.length; i++) {
+    ball[0].moveBall();
+    ball[1].moveBall();
+  //}
 }
 
-function Ball() {
-  this.direction = gameLevels[gameNumber - 1][0][4];
-  this.ballX = gameLevels[gameNumber -1][0][2] * ballSizeRatio;
-  this.ballY = gameLevels[gameNumber -1][0][3] * ballSizeRatio;
+function Ball(ballX, ballY, direction, number) {
+  this.direction = direction;
+  this.number = number;
+  this.ballX = ballX;
+  this.ballY = ballY;
   this.adjX;
   this.adjY;
 
   this.drawBall = function() {
-    $('#gameBoard').prepend('<div class="arrow arrow-' + gameLevels[gameNumber - 1][0][4] + '"></div><div class="ball"></div>');
-    $('.arrow').css({left: gameLevels[gameNumber - 1][0][2] * ballSizeRatio + 'px', top: gameLevels[gameNumber - 1][0][3] * ballSizeRatio + 'px'});
-    $('.ball').css({left: gameLevels[gameNumber - 1][0][2] * ballSizeRatio + 'px', top: gameLevels[gameNumber - 1][0][3] * ballSizeRatio + 'px'});
+    $('#gameBoard').prepend('<div class="arrow arrow-' + this.direction + ' arrow-' + this.number +'"></div><div class="ball ball-' + this.number + '"></div>');
+    $('.arrow-' + this.number).css({left: this.ballX + 'px', top: this.ballY + 'px'});
+    $('.ball-' + this.number).css({left: this.ballX + 'px', top: this.ballY + 'px'});
   },
 
   this.moveBall = function() {
@@ -96,7 +112,7 @@ function Ball() {
       });
     } else {
       for(var i = 1; i < gameLevels[gameNumber - 1].length; i++) {
-        if (this.adjX == gameLevels[gameNumber - 1][i][1]*ballSizeRatio && this.adjY == gameLevels[gameNumber - 1][i][2]*ballSizeRatio) {
+        if (this.adjX == gameLevels[gameNumber - 1][i][1] * ballSizeRatio && this.adjY == gameLevels[gameNumber - 1][i][2]*ballSizeRatio) {
           this.changeDirection(i);
         }
       }
@@ -109,12 +125,12 @@ function Ball() {
       this.ballX += units;
       this.adjX = this.ballX + units;
       this.adjY = this.ballY;
-      $('.ball').animate({left: '+=' + units + 'px'}, 50);
+      $('.ball-' + this.number).animate({left: '+=' + units + 'px'}, 50);
     } else {
       this.ballY += units;
       this.adjX = this.ballX;
       this.adjY = this.ballY + units;
-      $('.ball').animate({top: '+=' + units + 'px'}, 50);
+      $('.ball-' + this.number).animate({top: '+=' + units + 'px'}, 50);
     }
   },
 
@@ -129,8 +145,8 @@ function Ball() {
 }
 
 function Game() {
-  winX = gameLevels[gameNumber - 1][0][0] * ballSizeRatio;
-  winY = gameLevels[gameNumber - 1][0][1] * ballSizeRatio;
+  winX = gameLevels[gameNumber - 1][0][0][0][0] * ballSizeRatio;
+  winY = gameLevels[gameNumber - 1][0][0][0][1] * ballSizeRatio;
 
   this.loadLevel = function() {
     // Adds triangles
@@ -178,16 +194,3 @@ $(document).on('click', '.triangle', function() {
     }
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
