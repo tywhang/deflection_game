@@ -1,4 +1,4 @@
-var gameNumber = 1;
+var gameNumber = 2;
 var ballSizeRatio = 40;
 var gameLevels = [[[[[9, 2], [4, 7]], [[0, 0, 'right'], [1, 9, 'right']]],
                       ['bottomRight', 5, 5], ['topLeft', 0, 2], ['bottomLeft', 0, 5], ['topRight', 5, 0], ['bottomRight', 9, 9]],
@@ -24,18 +24,20 @@ var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
 
 /*
 
-Create a try again method.
+Current bug:
 
-When player loses. Create a try again button.
+If ball deflects back at a triangle that two units away, the ball goes beyond the triangle.
 
-This button should work like the nextRoundButton.
+This is caused by the animation in touch() which pushes the ball's coordinate paramaters beyond the point of detection.
 
-However it shouldn't increment the gameNumber.
+solution is to recheck the touch function if a change has been made.
 
 
-Action
+It's time to rethink how we deal with connections.
 
-Refactor the nextRound button so that it take a parameter as to whether or not to increment or not
+Change behavior depending on whether the ball touches the inside or outside of a triangle.
+
+
 
 */
 
@@ -99,7 +101,6 @@ function Ball(ballX, ballY, direction, number) {
 
   this.moveBall = function() {
     this.touch();
-    console.log(cont);
     if (cont) {
       if (this.direction == 'right') {
         this.move('right', 40);
@@ -108,7 +109,6 @@ function Ball(ballX, ballY, direction, number) {
       } else if(this.direction == 'left') {
         this.move('left', -40);
       } else {
-        console.log('work');
         this.move('up', -40);
       }
       this.moveBall();
@@ -135,29 +135,48 @@ function Ball(ballX, ballY, direction, number) {
     }
   },
 
-  this.move = function(direction, units) {
-    console.log(direction);
-    if (direction == 'right' || direction == 'left') {
-      this.ballX += units;
-      this.adjX = this.ballX + units;
-      this.adjY = this.ballY;
-      $('.ball-' + this.number).animate({left: '+=' + units + 'px'}, 50);
-    } else {
-      this.ballY += units;
-      this.adjX = this.ballX;
-      this.adjY = this.ballY + units;
-      $('.ball-' + this.number).animate({top: '+=' + units + 'px'}, 50);
-    }
-  },
-
   this.changeDirection = function(i) {
     for (var j = 0; j < triArray.length; j++) {
       if ($('.tri' + i).hasClass(triArray[j][0])) {
-        this.move(this.direction, cTri[j][dirHash[this.direction]][1]);
-        this.direction = cTri[j][dirHash[this.direction]][0];
+        if (cTri[j][dirHash[this.direction]][1] == 0) {
+          var oldDirection = this.direction;
+          this.direction = cTri[j][dirHash[this.direction]][0];
+          console.log("special: " + this.direction, cTri[j][dirHash[oldDirection]][1]);
+          this.move(this.direction, cTri[j][dirHash[oldDirection]][1]);
+          this.moveBall();
+        } else {
+          this.move(this.direction, cTri[j][dirHash[this.direction]][1]);
+          this.direction = cTri[j][dirHash[this.direction]][0];
+        }
       }
     }
+  },
+
+  this.move = function(direction, units) {
+    console.log(direction, units);
+    var adjustment;
+    if (direction == 'right' || direction == 'down') {
+      adjustment = 40;
+    } else {
+      adjustment = -40;
+    }
+    console.log(adjustment);
+    if (direction == 'right' || direction == 'left') {
+      this.ballX += units;
+      this.adjX = this.ballX + adjustment;
+      this.adjY = this.ballY;
+      $('.ball-' + this.number).animate({left: '+=' + units + 'px'}, 50);
+      console.log(this.adjX, this.adjY);
+    } else {
+      this.ballY += units;
+      this.adjX = this.ballX;
+      this.adjY = this.ballY + adjustment;
+      $('.ball-' + this.number).animate({top: '+=' + units + 'px'}, 50);
+      console.log(this.adjX, this.adjY);
+    }
   }
+
+
 }
 
 function Game() {
