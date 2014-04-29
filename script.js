@@ -56,6 +56,7 @@ function start() {
   $('#game').fadeTo('slow', 1);
   game = new Game();
   game.loadLevel();
+  launch = false;
   roundWin = true;
   var ballDirectory = gameLevels[gameNumber - 1][0][1];
   for (var i = 0; i < ballDirectory.length; i++) {
@@ -67,7 +68,6 @@ function start() {
 function launchBall() {
   $('.launch').addClass('hide');
   $('.arrow').fadeOut();
-  launch = true;
   for (var i = 0; i < ball.length; i++) {
     cont = true;
     ball[i].moveBall();
@@ -189,7 +189,7 @@ function Game() {
     $('.triangle').remove();
     $('.ball').remove();
     $('.arrow').remove();
-    triCount = 0; 
+    triCount = 0;
     start();
   }
 }
