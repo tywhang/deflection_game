@@ -1,7 +1,7 @@
 var gameNumber = 1;
 var ballSizeRatio = 40;
 var gameLevels = [[[[[9, 2], [4, 7]], [[0, 0, 'right'], [1, 9, 'right']]],
-                      ['bottomRight', 5, 5], ['topLeft', 0, 2], ['bottomRight', 0, 5], ['topRight', 5, 0], ['bottomRight', 9, 9]],
+                      ['bottomRight', 5, 5], ['topLeft', 0, 2], ['bottomLeft', 0, 5], ['topRight', 5, 0], ['bottomRight', 9, 9]],
                   [[[[9, 2]], [[2, 9, 'up']]], 
                       ['topLeft', 2, 0], ['topRight', 4, 0], ['bottomLeft', 4, 2]]
 
@@ -11,6 +11,7 @@ var winY;
 var cont = true;
 var launch = false;
 var ball = [];
+var roundWin;
 
 
 var triArray = [['topLeft', 0], ['topRight', 1], ['bottomRight', 2], ['bottomLeft', 3]];
@@ -19,9 +20,6 @@ var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
         [['down', 40], ['up', 0], ['right', 0], ['left', -40]],   //topRight
         [['up', 40], ['left', 40], ['right', 0], ['down', 0]],   //bottomRight
         [['left', 0], ['right', 40], ['up', -40], ['down', 0]]];   //bottomLeft
-
-
-
 
 
 
@@ -41,6 +39,7 @@ function start() {
   $('#game').fadeTo('slow', 1);
   game = new Game();
   game.loadLevel();
+  roundWin = true;
   var ballDirectory = gameLevels[gameNumber - 1][0][1];
   for (var i = 0; i < ballDirectory.length; i++) {
     ball[i] = new Ball(ballDirectory[i][0] * ballSizeRatio, ballDirectory[i][1] * ballSizeRatio, ballDirectory[i][2], i);
@@ -52,11 +51,20 @@ function launchBall() {
   $('.launch').addClass('hide');
   $('.arrow').fadeOut();
   launch = true;
-  cont = true;
-  //for (var i = 0; i < ball.length; i++) {
-    ball[0].moveBall();
-    ball[1].moveBall();
-  //}
+  for (var i = 0; i < ball.length; i++) {
+    cont = true;
+    ball[i].moveBall();
+    alert((i == ball.length - 1).toString() + " & " + roundWin);
+    if (i == ball.length - 1 && roundWin) {  
+      $('.ball-0').animate({height: '+= 0px'}, function() {
+        $('#gameBoard').children(":not('.nextGameButton')").fadeTo('slow', 0.3);
+        $('.ball-0').css({margin: '5px', height: '30px', width: '30px'}); 
+        $('.win').removeClass('hide');
+        $('.end').css('background', 'red');
+        $('.nextGameButton').removeClass('hide').addClass('center');
+      });
+    }
+  }
 }
 
 function Ball(ballX, ballY, direction, number) {
@@ -92,21 +100,12 @@ function Ball(ballX, ballY, direction, number) {
   },
 
   this.touch = function() {
-    // Win Sequence
     if (this.ballX == winX && this.ballY == winY) {
-      console.log('winSequence');
       cont = false;
-      $('.ball').animate({height: '+= 0px'}, function() {
-        $('#gameBoard').children(":not('.nextGameButton')").fadeTo('slow', 0.3);
-        $('.ball').css({margin: '5px', height: '30px', width: '30px'}); 
-        $('.win').removeClass('hide');
-        $('.end').css('background', 'red');
-        $('.nextGameButton').removeClass('hide').addClass('center');
-      });
-
     // Lose Sequence
     } else if (this.ballX > 360 || this.ballX < 0 || this.ballY > 360 || this.ballY < 0) {
       cont = false;
+      roundWin = false;
       $('.ball').animate({height: '+= 0px'}, function() {
         $('.lose').removeClass('hide');
       });
