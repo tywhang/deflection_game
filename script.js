@@ -22,10 +22,27 @@ var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
         [['left', 0], ['right', 40], ['up', -40], ['down', 0]]];   //bottomLeft
 
 
+/*
+
+Create a try again method.
+
+When player loses. Create a try again button.
+
+This button should work like the nextRoundButton.
+
+However it shouldn't increment the gameNumber.
+
+
+Action
+
+Refactor the nextRound button so that it take a parameter as to whether or not to increment or not
+
+*/
+
 
 $(document).ready(function() {
-  $('#gameBoard').append('<button type="button" class="button nextGameButton" onclick="game.nextRound()">Next Round</button>');
-  $('.nextGameButton').addClass("hide");
+  $('#gameBoard').append('<button type="button" class="button nextGameButton roundSelector hide" onclick="game.clearBoard(true)">Next Round</button>');
+  $('#gameBoard').append('<button type="button" class="button tryAgain roundSelector hide" onclick="game.clearBoard(false)">Try Again</button>');
 });
 
 $(document).on('keydown', function(event) {
@@ -54,7 +71,6 @@ function launchBall() {
   for (var i = 0; i < ball.length; i++) {
     cont = true;
     ball[i].moveBall();
-    alert((i == ball.length - 1).toString() + " & " + roundWin);
     if (i == ball.length - 1 && roundWin) {  
       $('.ball-0').animate({height: '+= 0px'}, function() {
         $('#gameBoard').children(":not('.nextGameButton')").fadeTo('slow', 0.3);
@@ -108,6 +124,7 @@ function Ball(ballX, ballY, direction, number) {
       roundWin = false;
       $('.ball').animate({height: '+= 0px'}, function() {
         $('.lose').removeClass('hide');
+        $('.tryAgain').removeClass('hide').addClass('center');
       });
     } else {
       for(var i = 1; i < gameLevels[gameNumber - 1].length; i++) {
@@ -159,14 +176,20 @@ function Game() {
     $('.end').css('left', winX + 'px').css('top', winY + 'px');
   }
 
-  this.nextRound = function() {
+  this.clearBoard = function(increment) {
+    if (increment) {
+      gameNumber++;
+      $('.win').addClass('hide');
+    }
+    if(!increment) {
+      $('.lose').addClass('hide');
+    }
     $('.nextGameButton').addClass('hide').removeClass('center');
-    $('.win').addClass('hide');
+    $('.tryAgain').addClass('hide').removeClass('center');
     $('.triangle').remove();
     $('.ball').remove();
     $('.arrow').remove();
     triCount = 0; 
-    gameNumber++;
     start();
   }
 }
