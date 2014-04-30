@@ -1,6 +1,6 @@
 var gNum = 1;
 var bSize = 40;
-var gLevels = [[[[[9, 2], [4, 7]], [[0, 0, 'right'], [1, 9, 'right']]],
+var gLevels = [[[[[9, 2]], [[0, 0, 'right'], [1, 9, 'right']]],
                   ['bottomRight', 5, 5], ['topLeft', 0, 2], ['bottomLeft', 0, 5], ['topRight', 5, 0], ['bottomRight', 9, 9]],
                [[[[9, 2]], [[2, 9, 'up']]], 
                   ['topLeft', 2, 0], ['topRight', 4, 0], ['bottomLeft', 4, 2]]
@@ -22,9 +22,10 @@ var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
         [['left', 0], ['right', 40], ['up', -40], ['down', 0]]];   //bottomLeft
 
 function start() {
+  $('.info').addClass('hide');
   $('.end').css('background', 'yellow');
   $('.score').html(gNum);
-  $('.start').addClass('hide');
+  $('.start').addClass('hide').removeClass('center');
   $('.launch').removeClass('hide');
   $('#game').fadeTo('slow', 1);
   game = new Game();
@@ -50,6 +51,11 @@ function launchBall() {
         $('.win').removeClass('hide');
         $('.end').css('background', 'red');
         $('.nextGameButton').removeClass('hide').addClass('center');
+      });
+    } else if (i == ball.length) {
+        $('.ball-' + bNum).animate({margin: '+= 0px'}, function() {
+        $('.lose').removeClass('hide');
+        $('.tryAgain').removeClass('hide').addClass('center');
       });
     }
   }
@@ -91,10 +97,6 @@ function Ball(bX, bY, direction, bNum) {
     } else if (this.bX > 360 || this.bX < 0 || this.bY > 360 || this.bY < 0) {
       cont = false;
       roundWin = false;
-      $('.ball-' + bNum).animate({margin: '+= 0px'}, function() {
-        $('.lose').removeClass('hide');
-        $('.tryAgain').removeClass('hide').addClass('center');
-      });
     } else {
       var tArray = gLevels[gNum - 1];
       for(var i = 1; i < tArray.length; i++) {
@@ -158,7 +160,6 @@ function Game() {
       var tri = new Triangle();
       tri.add(tArray[i][0], (tArray[i][1] * bSize), (tArray[i][2]) * bSize, i);
     }
-    
     // Adds End spot
     $('#gameBoard').prepend('<div class="end"></div>');
     $('.end').css('left', winX + 'px').css('top', winY + 'px');

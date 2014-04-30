@@ -9,6 +9,7 @@
   <body>
     <div id="game">
       <div id="gameBoard">
+        <button type="button" onclick="start()" class="start button roundSelector center">Start Game</button>
         <button type="button" class="button nextGameButton roundSelector hide" onclick="game.clearBoard(true)">Next Round</button>
         <button type="button" class="button tryAgain roundSelector hide" onclick="game.clearBoard(false)">Try Again</button>
       </div>
@@ -16,14 +17,14 @@
         <h3>Deflection Game</h3>
         <br />
         <p>Level</p>
-        <p class="score"></p>
+        <p class="score">0</p>
         <br />
         <button type="button" onclick="launchBall()" class="button launch hide">Launch the ball</button>
-        <button type="button" onclick="start()" class="start button">Start Game</button>
         <br />
         <br />
         <p class="win hide">You win!</p>
         <p class="lose hide">You lose...</p>
+        <p class="info">Tap the triangles to rotate them and launch the ball!</p>
       </div>
     </div>
   </body>

@@ -55,7 +55,7 @@
 .roundSelector {
   position: absolute;
   height: 30px; 
-  z-index: 1;
+  z-index: 4;
 }
 
 .center {
