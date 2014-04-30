@@ -45,7 +45,7 @@ function launchBall() {
     cont = true;
     ball[i].moveBall();
     if (i == ball.length - 1 && roundWin) {  
-      $('.ball-0').animate({height: '+= 0px'}, function() {
+      $('.ball').animate({margin: '5px'}, function() {
         $('#gameBoard').children(":not('.nextGameButton')").fadeTo('slow', 0.3);
         $('.win').removeClass('hide');
         $('.end').css('background', 'red');
@@ -85,14 +85,13 @@ function Ball(bX, bY, direction, bNum) {
   this.touch = function() {
     if (this.bX == winX && this.bY == winY) {
       cont = false;
-      $('.ball' + bNum).animate({margin: '5px', height: '40px', width: '40px'}, 50);
+      $('.ball-' + bNum).animate({margin: '5px', height: '30px', width: '30px'}, 50);
 
     // Lose Sequence
     } else if (this.bX > 360 || this.bX < 0 || this.bY > 360 || this.bY < 0) {
       cont = false;
       roundWin = false;
       $('.ball-' + bNum).animate({margin: '+= 0px'}, function() {
-        alert('work');
         $('.lose').removeClass('hide');
         $('.tryAgain').removeClass('hide').addClass('center');
       });
