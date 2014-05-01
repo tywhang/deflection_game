@@ -2,18 +2,16 @@ var gNum = 1;
 var bSize = 40;
 var gLevels = [[[[[9, 2]], [[0, 0, 'right'], [1, 9, 'right']]],
                   ['bottomRight', 5, 5], ['topLeft', 0, 2], ['bottomLeft', 0, 5], ['topRight', 5, 0], ['bottomRight', 9, 9]],
-               [[[[9, 2]], [[2, 9, 'up']]], 
-                  ['topLeft', 2, 0], ['topRight', 4, 0], ['bottomLeft', 4, 2]]
+               [[[[9, 2]], [[3, 9, 'up']]], 
+                  ['topLeft', 3, 0], ['topRight', 4, 0], ['bottomLeft', 4, 2]]
                   ];
 
 var cont = true;
 var launch = false;
 var ball = [];
 var roundWin;
-var winX;
-var winY;
 
-
+var triDirections = ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'];
 var triArray = [['topLeft', 0], ['topRight', 1], ['bottomRight', 2], ['bottomLeft', 3]];
 var dirHash = {'right': 0, 'down': 1, 'left': 2, 'up': 3}
 var cTri = [[['left', 0], ['up', 0], ['down', -40], ['right', -40]], //topLeft
@@ -75,26 +73,26 @@ function Ball(bX, bY, direction, bNum) {
   this.moveBall = function() {
     this.touch();
     if (cont) {
-      if (this.direction == 'right') {
-        this.move('right', 40);
-      } else if(this.direction == 'down') {
-        this.move('down', 40);
-      } else if(this.direction == 'left') {
-        this.move('left', -40);
-      } else {
-        this.move('up', -40);
+      switch (this.direction) {
+        case 'right':
+        case 'down':
+          this.move(this.direction, 40);
+          break;
+          
+        case 'left':
+        case 'up':
+          this.move(this.direction, -40);
+          break;
       }
       this.moveBall();
     }
   },
 
   this.touch = function() {
-    if (this.bX == winX && this.bY == winY) {
+    if (this.bX == winX && this.bY == winY) { //If the ball lands in the end spot
       cont = false;
       $('.ball-' + bNum).animate({margin: '5px', height: '30px', width: '30px'}, 50);
-
-    // Lose Sequence
-    } else if (this.bX > 360 || this.bX < 0 || this.bY > 360 || this.bY < 0) {
+    } else if (this.bX > 360 || this.bX < 0 || this.bY > 360 || this.bY < 0) { // If ball falls out of bounds
       cont = false;
       roundWin = false;
     } else {
@@ -111,40 +109,51 @@ function Ball(bX, bY, direction, bNum) {
     for (var j = 0; j < triArray.length; j++) {
       if ($('.tri' + i).hasClass(triArray[j][0])) {
         var dirArray = cTri[j][dirHash[this.direction]];
-        if (dirArray[1] == 0) {   
+        // If ball hits outside surface of triangle
+        if (dirArray[1] == 0) {
           this.direction = dirArray[0];
           this.move(this.direction, dirArray[1]);
-          this.moveBall();
+        // If ball hits inside of triangle
         } else {
           this.move(this.direction, dirArray[1]);
           this.direction = dirArray[0];
         }
+        this.moveBall();
       }
     }
   },
 
   this.move = function(direction, units) {
-    console.log(direction, units);
-    var adjustment;
-    if (direction == 'right' || direction == 'down') {
-      adjustment = 40;
-    } else {
-      adjustment = -40;
-    }
-    console.log(adjustment);
-    if (direction == 'right' || direction == 'left') {
-      this.bX += units;
-      this.adjX = this.bX + adjustment;
-      this.adjY = this.bY;
-      $('.ball-' + this.bNum).animate({left: '+=' + units + 'px'}, 50);
-    } else {
-      this.bY += units;
-      this.adjX = this.bX;
-      this.adjY = this.bY + adjustment;
-      $('.ball-' + this.bNum).animate({top: '+=' + units + 'px'}, 50);
-    }
-  }
+    switch(direction) {
+      case 'right':
+        this.adjust(40, 0, units, 0);
+        $('.ball-' + this.bNum).animate({'left': '+=' + units + 'px'}, 50);
+        break;
 
+      case 'down':
+        this.adjust(0, 40, 0, units);
+        $('.ball-' + this.bNum).animate({'top': '+=' + units + 'px'}, 50);
+        break;
+
+      case 'left':
+        this.adjust(-40, 0, units, 0);
+        $('.ball-' + this.bNum).animate({'left': '+=' + units + 'px'}, 50);
+        break;
+
+      case 'up':
+        this.adjust(0, -40, 0, units);
+        $('.ball-' + this.bNum).animate({'top': '+=' + units + 'px'}, 50);
+        break;
+
+    }
+  },
+
+  this.adjust = function(xAdjust, yAdjust, xUnits, yUnits) {
+    this.bX += xUnits;
+    this.bY += yUnits;
+    this.adjX = this.bX + xAdjust;
+    this.adjY = this.bY + yAdjust;
+  }
 
 }
 
@@ -192,14 +201,11 @@ function Triangle() {
 
 $(document).on('click', '.triangle', function() {
   if (!launch) {
-    if($(this).hasClass('topLeft')) {
-      $(this).removeClass('topLeft').addClass('topRight');
-    } else if($(this).hasClass('topRight')) {
-      $(this).removeClass('topRight').addClass('bottomRight');
-    } else if($(this).hasClass('bottomRight')) {
-      $(this).removeClass('bottomRight').addClass('bottomLeft');
-    } else {
-      $(this).removeClass('bottomLeft').addClass('topLeft');
+    for (var i = 0; i < triDirections.length; i++) {
+      if ($(this).hasClass(triDirections[i])) {
+        $(this).removeClass(triDirections[i]).addClass(triDirections[(i + 1) % 4]);
+        i++
+      }
     }
   }
 });
